@@ -1,32 +1,34 @@
 #include <WiFi.h>
-#include <ArduinoECCX08.h>
-#include <ArduinoBearSSL.h>
+//#include <ArduinoECCX08.h>
+//#include <ArduinoBearSSL.h>
 #include <ArduinoHttpClient.h>
-#include <Arduino_OAuth.h>
 #include <Arduino_JSON.h>
+#include <tokens.h>
 
 #define led = 13;
-
-const char* ssid = "" // enter SSID
-const char* pass = "" // enter password
 
 void setup {
   Serial.begin(921600);
   pinMode(led, OUTPUT);
   attemptConnection();
+  httpsBegin();
 }
+
 
 void loop {
    // Wifi shit
-   delay(1000);
    Serial.println(WiFi.status());
    if (WiFi.status() != WL_CONNECTED) {
      attemptConnection();
+     httpsBegin();
    }
 
+   // Retrieving data from twitter API
 
 
+   delay(5000);
 }
+
 
 void attemptConnection() {
   Serial.print("Connecting to ");
@@ -46,4 +48,12 @@ void attemptConnection() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   digitalWrite(led, HIGH);
+}
+
+
+void httpsBegin() {
+  HTTPClient http;
+  Serial.println("HTTPS Begin...");
+
+  http.begin
 }

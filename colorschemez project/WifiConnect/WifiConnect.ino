@@ -10,30 +10,26 @@ ported for sparkfun esp32
 
  */
 
- #include <WiFi.h>
- void attemptConnection();
+#include <WiFi.h>
+#include <tokens.h>
 
+int led = 13;
 
- int led = 13;
-
- const char* ssid = "" // enter SSID
- const char* pass = "" // enter password
-
- void setup {
+void setup() {
    Serial.begin(921600);
    pinMode(led, OUTPUT);
    attemptConnection();
- }
+}
 
- void loop {
+void loop() {
     delay(1000);
-    println(WiFi.status());
+    Serial.println(WiFi.status());
     if (WiFi.status() != WL_CONNECTED) {
       attemptConnection();
     }
- }
+}
 
- void attemptConnection() {
+void attemptConnection() {
    Serial.print("Connecting to ");
    Serial.println(ssid);
 
@@ -51,4 +47,4 @@ ported for sparkfun esp32
    Serial.println("IP address: ");
    Serial.println(WiFi.localIP());
    digitalWrite(led, HIGH);
- }
+}

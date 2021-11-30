@@ -25,7 +25,7 @@ void loop() {
   } else {
     Serial.print(n);
     Serial.println(" networks found");
-    for (int ii = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       Serial.print(i);
       Serial.print(": ");
       Serial.print(WiFi.SSID(i));

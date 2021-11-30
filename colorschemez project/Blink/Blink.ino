@@ -1,11 +1,11 @@
 int led = 13;
 
-void setup {
+void setup() {
   Serial.begin(921600);
   pinMode(led, OUTPUT);
 }
 
-void loop  {
+void loop()  {
   Serial.println("On");
   digitalWrite(led, HIGH);
   delay(500);
