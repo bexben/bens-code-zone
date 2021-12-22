@@ -11,7 +11,7 @@ ported for sparkfun esp32
  */
 
 #include <WiFi.h>
-#include <tokens.h>
+#include "tokens.h"
 
 int led = 13;
 
@@ -44,7 +44,9 @@ void attemptConnection() {
 
    Serial.println("");
    Serial.println("Wifi connected");
-   Serial.println("IP address: ");
+   Serial.print("IP address: ");
    Serial.println(WiFi.localIP());
+   Serial.print("MAC Address: ");
+   Serial.println(WiFi.macAddress());
    digitalWrite(led, HIGH);
 }
