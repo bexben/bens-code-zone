@@ -16,14 +16,16 @@
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 #include "time.h"
-#include "tokens.h"
+#include "tokens.h" //contains ssid, pass, and BEARER_TOKEN
 
+// Adafruit ESP32 feather pinouts for 2.4" TFT featherwing
 #define STMPE_CS 32
 #define TFT_CS   15
 #define TFT_DC   33
 #define SD_CS    14
 #define LEDPIN   13
 
+// Time values for EST no DST, -5:00 GMT
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -21600;
 const int   daylightOffset_sec = 0;
@@ -34,9 +36,11 @@ void setup() {
     pinMode(LEDPIN, OUTPUT);
     delay(500);
 
+    // Connect to WiFi
     attemptConnection();
     Serial.println();
 
+    // Setting time
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
@@ -44,6 +48,7 @@ void setup() {
 void loop() {
     //Serial.println(WiFi.status());
     if (WiFi.status() != WL_CONNECTED) {
+        // If WiFi is disconnected, attempt to connect
         attemptConnection();
     }
     loadTweet();
@@ -75,24 +80,28 @@ void attemptConnection() {
 }
 
 /*
-
-https://api.twitter.com/2/tweets/search/recent?query=from%3Acolorschemez%20&start_time=2021-12-21T10%3A00%3A00-05%3A00
+Example query, uses ISO 8601 format
+https://api.twitter.com/2/tweets/search/recent?query=from%3Acolorschemez%20&start_time=YYYY-MM-DDTHH%3A00%3A00-05%3A00&expansions=attachments.media_keys&media.fields=url";
 */
 
 void loadTweet() {
+    // Getting time from time.h struct
     struct tm timeinfo;
     if(!getLocalTime(&timeinfo)){
       Serial.println("Failed to obtain time");
       return;
     }
 
+    // Setting custom time. Queries the past hour for tweets.
     char queryMidChar[50];
     strftime(queryMidChar, 50, "%Y-%m-%dT%H", &timeinfo);
     String queryMid = String(queryMidChar);
 
+    // Rest of Query
     String queryStart = "https://api.twitter.com/2/tweets/search/recent?query=from%3Acolorschemez%20&start_time=";
-    String queryEnd = "%3A00%3A00-05%3A00";
+    String queryEnd = "%3A00%3A00-05%3A00&expansions=attachments.media_keys&media.fields=url";
 
+    // Sending HTTP request with authorization
     HTTPClient http;
     http.setAuthorizationType("Bearer");
     http.begin(queryStart + queryMid + queryEnd);
@@ -100,8 +109,12 @@ void loadTweet() {
     int httpCode = http.GET();
 
     if (httpCode > 0) { //Check for the returning code
+        // Get HTTP response payload
         String payload = http.getString();
-        StaticJsonDocument<512> doc;
+
+        // Setting up JSON deserialization
+        // Uses ArduinoJson, tutorials online
+        StaticJsonDocument<1024> doc;
         DeserializationError error = deserializeJson(doc, payload);
         if (error) {
             Serial.print(F("deserializeJson() failed with code "));
@@ -109,23 +122,33 @@ void loadTweet() {
             return;
         }
 
-        const char* tweetChar = doc["data"][0]["text"];
+        // Code provided by ArduinoJson assistant
+        JsonObject data_0 = doc["data"][0];
+        const char* tweetChar = data_0["text"];
+        JsonObject includes_media_0 = doc["includes"]["media"][0];
+        const char* url = includes_media_0["url"];
+
+        // This section is for removing the extraneous URL that exists at
+        // the end of the tweet for some reason.
         int textLen = strlen(tweetChar) - 23; //23 is length of url at end of tweet with null character
-        char tweet[textLen-1];
-        char url[23];
-        Serial.println(tweetChar[0]);
-        Serial.println(tweetChar);
-        Serial.println(strlen(tweetChar));
+        char tweet[textLen];
         for (int i = 0; i < textLen; i++) {
             tweet[i] = tweetChar[i];
-            Serial.println(tweet);
         }
-        for (int i = textLen; i < strlen(tweetChar)+1; i++) {
-            url[i-textLen] = tweetChar[i];
-            Serial.println(url);
+
+        // This section is for changing the PNG to JPG. Only JPG can be handled
+        // by arduino processors due to necessary computational capacities.
+        // All URLs are the same # of characters, which makes this easy.
+        char urlStr[48];
+        for (int i = 0; i < 48; i++) {
+            urlStr[i] = url[i];
         }
+        urlStr[44] = 'j';
+        urlStr[45] = 'p';
+        urlStr[46] = 'g';
+
+        Serial.println(urlStr);
         Serial.println(tweet);
-        Serial.println(url);
     } else {
         Serial.println("Error on HTTP request");
         Serial.println(httpCode);
