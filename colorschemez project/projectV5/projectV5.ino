@@ -51,7 +51,12 @@ void loop() {
         // If WiFi is disconnected, attempt to connect
         attemptConnection();
     }
-    loadTweet();
+
+    String imageUrl, text;
+    loadTweet(&imageUrl, &text);
+    Serial.println(imageUrl);
+    Serial.println(text);
+    Serial.println(ESP.getFreeHeap());
     delay(60000);
 }
 
@@ -84,7 +89,7 @@ Example query, uses ISO 8601 format
 https://api.twitter.com/2/tweets/search/recent?query=from%3Acolorschemez%20&start_time=YYYY-MM-DDTHH%3A00%3A00-05%3A00&expansions=attachments.media_keys&media.fields=url";
 */
 
-void loadTweet() {
+void loadTweet(String *url, String *tweet) {
     // Getting time from time.h struct
     struct tm timeinfo;
     if(!getLocalTime(&timeinfo)){
@@ -126,14 +131,14 @@ void loadTweet() {
         JsonObject data_0 = doc["data"][0];
         const char* tweetChar = data_0["text"];
         JsonObject includes_media_0 = doc["includes"]["media"][0];
-        const char* url = includes_media_0["url"];
+        const char* urlChar = includes_media_0["url"];
 
         // This section is for removing the extraneous URL that exists at
         // the end of the tweet for some reason.
         int textLen = strlen(tweetChar) - 23; //23 is length of url at end of tweet with null character
-        char tweet[textLen];
+        char tweetStr[textLen];
         for (int i = 0; i < textLen; i++) {
-            tweet[i] = tweetChar[i];
+            tweetStr[i] = tweetChar[i];
         }
 
         // This section is for changing the PNG to JPG. Only JPG can be handled
@@ -141,14 +146,18 @@ void loadTweet() {
         // All URLs are the same # of characters, which makes this easy.
         char urlStr[48];
         for (int i = 0; i < 48; i++) {
-            urlStr[i] = url[i];
+            urlStr[i] = urlChar[i];
         }
+        // png to jpg
         urlStr[44] = 'j';
         urlStr[45] = 'p';
         urlStr[46] = 'g';
+        // extra null terminator since it was removed during the separation
+        tweetStr[textLen] = '\0';
 
-        Serial.println(urlStr);
-        Serial.println(tweet);
+        // Assigning pointers to be "returned"
+        *url = urlStr;
+        *tweet = tweetStr;
     } else {
         Serial.println("Error on HTTP request");
         Serial.println(httpCode);
