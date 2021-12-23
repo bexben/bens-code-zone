@@ -104,7 +104,7 @@ void printLocalTime() {
   }
   //Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   //Serial.println(&timeinfo, "%Y/%m/%d, %H:%M:%S");
-  String currentYear;
+  char currentYear[4];
   strftime(currentYear, 80, "%Y", &timeinfo);
   Serial.println(currentYear);
   
