@@ -2,9 +2,9 @@
     Benjamin Jones
     12/23/21
 
-    Used following code as template for my implementation:
-    https://github.com/arduino-libraries/Arduino_OAuth/blob/master/examples/GetTwitterStatus/GetTwitterStatus.ino
-    dronebotworkshop.com (wifi tutorials)
+    Significant amounts of this code is based off the work by:
+        https://github.com/Bodmer
+    thank u bodmer
 
     This code is for a christmas present, designed to present @colorschemez's
     latest tweet picture and text on a 2.4" TFT display. It is implemented
@@ -25,8 +25,7 @@
 */
 // For TFT
 #include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
+#include <TFT_eSPI.h>
 
 // For ESP32
 #include <WiFi.h>
@@ -54,7 +53,8 @@ const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -21600;
 const int   daylightOffset_sec = 0;
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+TFT_eSPI tft = TFT_eSPI();
+//Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     if ( y >= tft.height() ) return 0;
@@ -157,7 +157,6 @@ void displayTweet(String tweet) {
     tft.setTextSize(2);
 
     tft.println(tweet);
-    TJpgDec.setJpgScale(2);
     TJpgDec.drawFsJpg(0, 80, "/image.jpg");
     Serial.println("Drawn JPG");
 
