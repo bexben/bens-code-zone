@@ -13,6 +13,7 @@
     Necessary changes:
     * If time-getting fails, then try again. FIXED I THINK
     * make code prettier, better error codes, more verbose checkpoints
+        - Blit error code to display, delay 5 seconds
 
     Wanted changes:
     * Should only redownload if tweet is new, but idk if necessary yet
@@ -43,8 +44,6 @@
 
 // Adafruit ESP32 feather pinouts for 2.4" TFT featherwing
 #define STMPE_CS 32
-#define TFT_CS   15
-#define TFT_DC   33
 #define SD_CS    14
 #define LEDPIN   13
 
@@ -54,7 +53,6 @@ const long  gmtOffset_sec = -21600;
 const int   daylightOffset_sec = 0;
 
 TFT_eSPI tft = TFT_eSPI();
-//Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
     if ( y >= tft.height() ) return 0;
@@ -82,7 +80,7 @@ void setup() {
     tft.fillScreen(ILI9341_BLACK);
 
     TJpgDec.setJpgScale(2);
-    //TJpgDec.setSwapBytes(true);
+    TJpgDec.setSwapBytes(true);
     TJpgDec.setCallback(tft_output);
 
     // Connect to WiFi
@@ -154,7 +152,7 @@ void displayTweet(String tweet) {
 
     tft.setCursor(0, 0);
     tft.setTextColor(ILI9341_WHITE);
-    tft.setTextSize(2);
+    tft.setTextSize(1);
 
     tft.println(tweet);
     TJpgDec.drawFsJpg(0, 80, "/image.jpg");
