@@ -41,6 +41,7 @@
 #include "List_SPIFFS.h"
 #include "Load_Tweet.h"
 #include "Download_Image.h"
+#include "Baseline_Encoder.h"
 
 // Adafruit ESP32 feather pinouts for 2.4" TFT featherwing
 #define STMPE_CS 32
@@ -106,12 +107,22 @@ void loop() {
 
     listSPIFFS();
 
-    String imageUrl, text;
-    if (loadTweet(&imageUrl, &text)) {
-        Serial.println(imageUrl);
+    String imageUrlProg, text;
+    if (loadTweet(&imageUrlProg, &text)) {
+        Serial.println(imageUrlProg);
         Serial.println(text);
 
-        bool loaded = imageToMem(imageUrl, "/image.jpg");
+        String imageUrlBase;
+        bool loaded_baseline = baselineEncoder(imageUrlProg, &imageUrlBase);
+        if (loaded_baseline) {
+            Serial.println("Converted to Baseline");
+        } else {
+            Serial.println("Failed Baseline conversion");
+            return;
+        }
+
+        bool loaded = imageToMem(imageUrlBase, "/image.jpg");
+        if (loaded) Serial.println("Downloaded Baseline JPG");
 
         // Listing file
         listSPIFFS();
@@ -119,7 +130,7 @@ void loop() {
 
         Serial.print("Free Memory: ");
         Serial.println(ESP.getFreeHeap());
-        delay(60000);
+        delay(300000);
     }
 }
 
@@ -152,7 +163,7 @@ void displayTweet(String tweet) {
 
     tft.setCursor(0, 0);
     tft.setTextColor(ILI9341_WHITE);
-    tft.setTextSize(1);
+    tft.setTextSize(1.5);
 
     tft.println(tweet);
     TJpgDec.drawFsJpg(0, 80, "/image.jpg");

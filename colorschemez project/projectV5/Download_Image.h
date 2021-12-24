@@ -12,8 +12,8 @@ bool imageToMem(String url, String filename) {
     if ((WiFi.status() == WL_CONNECTED)) {
         // Start connection
         HTTPClient http;
-        //http.begin(url);
-        http.begin("https://pbs.twimg.com/media/FHVts5lUUAEQ0jH?format=jpg&name=small");
+        http.begin(url);
+        //http.begin("https://pbs.twimg.com/media/FHVts5lUUAEQ0jH?format=jpg&name=small");
 
         int httpCode = http.GET();
         if (httpCode > 0) {
