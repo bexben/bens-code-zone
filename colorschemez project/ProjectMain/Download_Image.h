@@ -1,7 +1,7 @@
 bool imageToMem(String url, String filename) {
     // This section was mostly copied from:
     // https://github.com/Bodmer/TJpg_Decoder/blob/master/examples/SPIFFS/SPIFFS_Web_Jpg/Web_Fetch.h
-    // Creator: Bodmer on github. Shoutout to Bodmer on this christmas present
+    // Creator: Bodmer on github. Shoutout to Bodmer
     if (SPIFFS.exists(filename) == true) {
         Serial.println("Found " + filename);
         return 0;
@@ -13,13 +13,13 @@ bool imageToMem(String url, String filename) {
         // Start connection
         HTTPClient http;
         http.begin(url);
-        //http.begin("https://pbs.twimg.com/media/FHVts5lUUAEQ0jH?format=jpg&name=small");
 
         int httpCode = http.GET();
         if (httpCode > 0) {
             fs::File f = SPIFFS.open(filename, "w+");
             if (!f) {
                 Serial.println("file open failed");
+                delay(3000);
                 return 0;
             }
 

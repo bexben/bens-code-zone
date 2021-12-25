@@ -3,7 +3,7 @@ Example query, uses ISO 8601 format
 https://api.twitter.com/2/tweets/search/recent?query=from%3Acolorschemez%20&start_time=YYYY-MM-DDTHH%3A00%3A00-05%3A00&expansions=attachments.media_keys&media.fields=url";
 */
 
-bool loadTweet(String *url, String *tweet) {
+bool loadTweet(String *url, String *tweet, String *id) {
 
     // Getting time from time.h struct
     struct tm timeinfo;
@@ -38,7 +38,7 @@ bool loadTweet(String *url, String *tweet) {
         StaticJsonDocument<1024> doc;
         DeserializationError error = deserializeJson(doc, payload);
         if (error) {
-            Serial.print(F("deserializeJson() failed with code "));
+            Serial.print(F("deserializeJson() tweet failed with code "));
             Serial.println(error.c_str());
             return 0;
         }
@@ -46,6 +46,7 @@ bool loadTweet(String *url, String *tweet) {
         // Code provided by ArduinoJson assistant
         JsonObject data_0 = doc["data"][0];
         const char* tweetChar = data_0["text"];
+        const char* tweetID = data_0["id"];
         JsonObject includes_media_0 = doc["includes"]["media"][0];
         const char* urlChar = includes_media_0["url"];
 
@@ -74,6 +75,7 @@ bool loadTweet(String *url, String *tweet) {
         // Assigning pointers to be "returned"
         *url = urlStr;
         *tweet = tweetStr;
+        *id = tweetID;
     } else {
         Serial.println("Error on Tweet HTTP request:");
         Serial.println(httpCode);

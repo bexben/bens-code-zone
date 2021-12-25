@@ -4,6 +4,7 @@ bool baselineEncoder(String urlProg, String *urlBase) {
     // can interpret
 
     if (WiFi.status() == WL_CONNECTED) {
+        // Starts up http client
         HTTPClient http;
 
         http.begin("http://api.rest7.com/v1/jpeg_optim.php?url=" + urlProg + "&encoding=baseline");
@@ -12,6 +13,7 @@ bool baselineEncoder(String urlProg, String *urlBase) {
         if (httpCode > 0) {
             Serial.println("Connected to rest7 API");
 
+            // Highly recommend arduinoJson assistant for generating this section
             String payload = http.getString();
             StaticJsonDocument<256> doc;
 
