@@ -14,7 +14,7 @@
 
     This code is for a christmas present, designed to present @colorschemez's
     latest tweet picture and text on a 2.4" TFT display. It is implemented
-    with an Arduino ESP32 Feather, and the 2.4" TFT FeatherWing
+    with an HUZZAH32 ESP32 Feather, and the 2.4" TFT FeatherWing
 
     Necessary changes:
     * make code prettier
@@ -87,9 +87,10 @@ void setup() {
     // Start up file system
     SPIFFS.begin(true);
     if (!SPIFFS.begin()) {
+        tft.setTextSize(2);
         tft.println("SPIFFS initialisation failed!");
         Serial.println("SPIFFS initialisation failed!");
-        delay(3000);
+        delay(15000);
         while (1) yield(); // Stay here twiddling thumbs waiting
     }
 
@@ -149,9 +150,10 @@ void loop() {
             tft.println("Converted to Baseline");
         } else {
             tft.fillScreen(ILI9341_BLACK);
+            tft.setTextSize(2);
             Serial.println("Failed Baseline conversion");
             tft.println("Failed Baseline conversion");
-            delay(3000);
+            delay(15000);
             return;
         }
 
